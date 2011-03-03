@@ -13,7 +13,7 @@ package
 	{
 		private var separationVector:Vector3D;
 		private var line:Line;
-		private var ball:Ball;
+		private var movingBall:Ball;
 		
 		public function CircleLineCollision() 
 		{
@@ -26,9 +26,9 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			line = new Line(250, 150, 50, 175);
-			ball = new Ball();
+			movingBall = new Ball();
 			addChild(line);
-			addChild(ball);
+			addChild(movingBall);
 			
 			
 			//create a vector3D object to use to separate overlapping objects;
@@ -53,6 +53,36 @@ package
 			this.graphics.beginFill(0xFF0000, 1);
 			this.graphics.drawCircle(closestPoint.x, closestPoint.y, 2);
 			this.graphics.endFill();
+			
+			// Now Check to see if the distance to the point is smaller than the radius of the circle.
+					//Simple collision detection
+			// using pyhagorean theorum
+			// (a*a) + (b*b) = (c*c);
+			var distanceX:Number = stage.mouseX - closestPoint.x; //Note - uses stage.mouseX now.			
+			var distanceY:Number = stage.mouseY - closestPoint.y; //Note - uses stage.mouseY now.
+			var distance:Number = Math.sqrt( (distanceX * distanceX) + (distanceY * distanceY));
+			
+			if (distance < movingBall.radius ) {
+				// the balls overlap
+				//now a better reaction			
+				// point our vector the correct separation direction
+				separationVector.x = distanceX;
+				separationVector.y = distanceY;
+				//scale the vector length to be the sum of the two ball radii				
+				if (separationVector.length > 0) {
+					//Protect the operation from a divide by zero error when separationVector.length is zero.
+					var scaleFactor:Number = (movingBall.radius ) / separationVector.length;
+					separationVector.scaleBy(scaleFactor);				
+				}
+				// position the moving ball at the separation vector and offset the vector by the stationary ball's position
+				movingBall.x = separationVector.x +closestPoint.x;
+				movingBall.y = separationVector.y +closestPoint.y;
+				
+			} else {
+				// the balls do not overlap
+				movingBall.x = mouseX;
+				movingBall.y = mouseY;
+			}
 			
 		}
 	}
