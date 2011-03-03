@@ -10,7 +10,7 @@ package
 	{
 		private var color:uint;
 		private var _radius:Number;
-		private var _position:Number = new Vector3D();
+		private var _position:Vector3D = new Vector3D();
 		public function Ball(radius:Number = 20) 
 		{
 			color = Math.random() * 0xFFFFFF;
@@ -27,9 +27,9 @@ package
 
 		}
 		
-		public function get position():Number { return _position; }
+		public function get position():Vector3D { return _position; }
 		
-		public function set position(value:Number):void 
+		public function set position(value:Vector3D):void 
 		{
 			_position = value;
 		}

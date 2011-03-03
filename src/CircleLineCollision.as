@@ -27,19 +27,16 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
+			//Create a couple of line segments to our Lines vector<T>
 			lines.push(new Line(50, 150, 350, 150));
 			lines.push(new Line(200, 50, 200, 250));
-			//lines.push(new Line(300, 50, 200, 250));
+			// Add a ball.
 			_movingBall = new Ball();
 			for (var i:int = 0; i < lines.length; i++) 
 			{
 				addChild(lines[i]);	
 			}
 			addChild(_movingBall);
-			
-			
-			//create a vector3D object to use to separate overlapping objects;
-			//separationVector = new Vector3D(0, 0);
 			
 			// Add a listener to move one fo the balls.
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
@@ -48,21 +45,22 @@ package
 		private function onMouseMove(e:MouseEvent):void 
 		{
 			this.graphics.clear();
-			var newBallPosition:Vector3D = new Vector3D(stage.mouseX, stage.mouseY);
-			
+			//var newBallPosition:Vector3D = new Vector3D(stage.mouseX, stage.mouseY);
+			_movingBall.position.x = stage.mouseX;
+			_movingBall.position.y = stage.mouseY;
 			for (var i:int = 0; i < lines.length; i++) 
 			{
-				var closestPoint:Vector3D = findClosestPoint(newBallPosition, lines[i]);
-				collisionReaction(newBallPosition, closestPoint, i);	
+				var closestPoint:Vector3D = findClosestPoint(_movingBall, lines[i]);
+				collisionReaction(_movingBall, closestPoint, i);	
 			}			
-			_movingBall.x = newBallPosition.x;
-			_movingBall.y = newBallPosition.y;
+			_movingBall.x = _movingBall.position.x;
+			_movingBall.y = _movingBall.position.y;
 		}
 		
-		private function findClosestPoint(pendingLocation:Vector3D, line:Line):Vector3D
+		private function findClosestPoint(ball:Ball, line:Line):Vector3D
 		{
 			// Find closest Point On Line
-			var mousePosition:Vector3D = new Vector3D(pendingLocation.x, pendingLocation.y);
+			var mousePosition:Vector3D = new Vector3D(ball.position.x, ball.position.y);
 			var lineVector:Vector3D = line.start.subtract(line.end);
 			var mouseVector:Vector3D = mousePosition.subtract(line.start);
 			var scaleFactor:Number = lineVector.dotProduct(mouseVector) / lineVector.lengthSquared;
@@ -78,17 +76,17 @@ package
 			return closestPoint;
 		}
 		
-		private function collisionReaction(movingBall:Vector3D, closestPoint:Vector3D, i:int):void
+		private function collisionReaction(ball:Ball, closestPoint:Vector3D, i:int):void
 		{
 			// Now Check to see if the distance to the point is smaller than the radius of the circle.
 					//Simple collision detection
 			// using pyhagorean theorum
 			// (a*a) + (b*b) = (c*c);
-			var distanceX:Number = movingBall.x - closestPoint.x; //Note - uses stage.mouseX now.			
-			var distanceY:Number = movingBall.y - closestPoint.y; //Note - uses stage.mouseY now.
+			var distanceX:Number = ball.position.x - closestPoint.x; //Note - uses stage.mouseX now.			
+			var distanceY:Number = ball.position.y - closestPoint.y; //Note - uses stage.mouseY now.
 			var distance:Number = Math.sqrt( (distanceX * distanceX) + (distanceY * distanceY));
 			
-			if (distance < _movingBall.radius ) {
+			if (distance < ball.radius ) {
 				// the balls overlap
 				//now a better reaction			
 				// point our vector the correct separation direction
@@ -98,18 +96,13 @@ package
 				//scale the vector length to be the sum of the two ball radii				
 				if (separationVector.length > 0) {
 					//Protect the operation from a divide by zero error when separationVector.length is zero.
-					var scaleFactor:Number = (_movingBall.radius ) / separationVector.length;
+					var scaleFactor:Number = (ball.radius ) / separationVector.length;
 					separationVector.scaleBy(scaleFactor);				
 				}
 				// position the moving ball at the separation vector and offset the vector by the stationary ball's position
-				movingBall.x = separationVector.x +closestPoint.x;
-				movingBall.y = separationVector.y +closestPoint.y;
-				
-			} else {
-				// the balls do not overlap
-				//movingBall.x = mouseX;
-				//movingBall.y = mouseY;
-			}
+				ball.position.x = separationVector.x +closestPoint.x;
+				ball.position.y = separationVector.y +closestPoint.y;				
+			} 
 		}
 		
 	}
